@@ -72,8 +72,7 @@ EOF
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE \
---non-interactive \
-"${RUNNER_TAG_LIST_OPT[@]}"
+--non-interactive
 
 # Native env var seems to be broken for security group
 
