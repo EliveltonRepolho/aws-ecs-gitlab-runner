@@ -56,6 +56,8 @@ concurrent = ${RUNNER_CONCURRENT_LIMIT}
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${AWS_INSTANCE_TYPE}",
+      "amazonec2-ssh-keypath=/home/${AWS_SSH_USER}/.ssh/gitlab-runner",
+      "amazonec2-keypair-name=${AWS_RUNNER_EC2_KEY_NAME}",
       "amazonec2-tags=stack,echope,stack-env,echope-infra-devops,stack-group,echope-gitlab-ec2-runner",
     ]
   [runners.cache]
