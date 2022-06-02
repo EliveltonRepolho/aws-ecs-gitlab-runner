@@ -27,14 +27,13 @@ TEMPLATE_FILE='./template-config.toml'
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
 cat <<EOF >$TEMPLATE_FILE
 
-concurrent = ${RUNNER_CONCURRENT_LIMIT}
+concurrent = 4
 
 [[runners]]
   name = "echope-gitlab-runner"
   description = "Gitlab Runner executing Pipeline Jobs in EC2" 
   executor = "docker+machine"
-  limit = ${RUNNER_CONCURRENT_LIMIT}
-  request_concurrency = ${RUNNER_CONCURRENT_LIMIT}
+  limit = 2
   environment = ["DOCKER_DRIVER=overlay2", "DOCKER_TLS_CERTDIR="]
   ${RUNNER_TAG_LIST_OPT}
   [runners.docker]
