@@ -26,8 +26,8 @@ TEMPLATE_FILE='./template-config.toml'
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
 cat <<EOF >$TEMPLATE_FILE
-
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
+check_interval = 0
 
 [[runners]]
   name = "echope-gitlab-runner"
