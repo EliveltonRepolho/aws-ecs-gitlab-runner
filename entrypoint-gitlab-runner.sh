@@ -26,7 +26,7 @@ TEMPLATE_FILE='./template-config.toml'
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
 cat <<EOF >$TEMPLATE_FILE
-concurrent = 4
+concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
 
 [[runners]]
@@ -34,7 +34,7 @@ check_interval = 0
   description = "Gitlab Runner executing Pipeline Jobs in EC2" 
   executor = "docker+machine"
   environment = ["DOCKER_DRIVER=overlay2", "DOCKER_TLS_CERTDIR="]
-  limit = 2
+  limit = ${RUNNER_CONCURRENT_LIMIT}
   ${RUNNER_TAG_LIST_OPT}
   [runners.docker]
     privileged = true
