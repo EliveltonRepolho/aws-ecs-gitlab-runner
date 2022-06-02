@@ -42,6 +42,7 @@ concurrent = 4
     tls_verify = true
   [runners.machine]
     IdleTime = 60
+    IdleCount = 2
     MachineDriver = "amazonec2"
     MachineName = "gitlab-docker-machine-%s"
     MachineOptions = [
