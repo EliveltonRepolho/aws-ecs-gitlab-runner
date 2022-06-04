@@ -33,8 +33,8 @@ check_interval = 0
   name = "echope-gitlab-runner"
   description = "Gitlab Runner executing Pipeline Jobs in EC2" 
   executor = "docker+machine"
-  environment = ["DOCKER_DRIVER=overlay2", "DOCKER_TLS_CERTDIR="]
   limit = ${RUNNER_CONCURRENT_LIMIT}
+  environment = ["DOCKER_DRIVER=overlay2", "DOCKER_TLS_CERTDIR="]
   ${RUNNER_TAG_LIST_OPT}
   [runners.docker]
     privileged = true
@@ -69,12 +69,20 @@ check_interval = 0
 EOF
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE"
+# https://docs.gitlab.com/runner/commands/
+# --debug
 gitlab-runner register \
 --template-config $TEMPLATE_FILE \
 --non-interactive
 
-# Native env var seems to be broken for security group
+echo "gitlab-runner version..."
+gitlab-runner --version
+
+echo "Status runner service..."
+gitlab-runner status
+
+echo "List available runners..."
+gitlab-runner list
 
 echo "Starting runner..."
-# Start Runner
 gitlab-runner run
