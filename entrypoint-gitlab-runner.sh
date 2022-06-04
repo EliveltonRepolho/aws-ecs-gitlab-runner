@@ -71,7 +71,7 @@ EOF
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE"
 # https://docs.gitlab.com/runner/commands/
 # --debug
-gitlab-runner register --debug \
+gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE \
 --non-interactive
 
