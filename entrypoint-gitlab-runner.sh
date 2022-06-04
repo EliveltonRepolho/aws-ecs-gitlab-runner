@@ -4,12 +4,12 @@
 set -euo pipefail
 
 # Always unregister runner on exit
-function gitlab-unregister {
+function gitlab_unregister {
     echo "Unregistering runner..."
     gitlab-runner unregister --all-runners
 }
 
-trap 'gitlab-unregister' EXIT SIGHUP SIGINT SIGTERM
+trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
 
 # Define runner tags
 # https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/main/values.yaml#L203
