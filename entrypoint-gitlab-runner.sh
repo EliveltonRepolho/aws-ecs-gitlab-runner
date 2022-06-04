@@ -78,9 +78,6 @@ gitlab-runner --debug register \
 echo "gitlab-runner version..."
 gitlab-runner --version
 
-echo "Status runner service..."
-gitlab-runner status
-
 echo "List available runners..."
 gitlab-runner list
 
