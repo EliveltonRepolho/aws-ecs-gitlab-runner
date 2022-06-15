@@ -133,7 +133,7 @@ echo "Registering runner using config.toml template file: $TEMPLATE_FILE_IT"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_IT \
 --non-interactive \
---tag-list "tests-integration"
+--tag-list "test:integration:browser"
 
 echo "gitlab-runner version..."
 gitlab-runner --version
