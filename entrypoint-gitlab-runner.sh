@@ -127,16 +127,12 @@ echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
---limit ${RUNNER_CONCURRENT_LIMIT} \
---request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
 --run-untagged
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_IT"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_IT \
 --non-interactive \
---limit ${RUNNER_CONCURRENT_LIMIT} \
---request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
 --tag-list "tests-integration"
 
 echo "gitlab-runner version..."
