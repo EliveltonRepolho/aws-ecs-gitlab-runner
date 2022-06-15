@@ -12,7 +12,6 @@ function gitlab_unregister {
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
 
 TEMPLATE_FILE_GENERAL='./template-general-config.toml'
-TEMPLATE_FILE_IT='./template-it-config.toml'
 # Create config.toml template file
 # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnersmachine-section
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
@@ -64,7 +63,8 @@ check_interval = 0
       BucketLocation = "${CACHE_S3_BUCKET_LOCATION}"
 EOF
 
-cat <<EOF >$TEMPLATE_FILE_GENERAL
+TEMPLATE_FILE_IT='./template-it-config.toml'
+cat <<EOF >$TEMPLATE_FILE_IT
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
 
