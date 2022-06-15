@@ -11,12 +11,13 @@ function gitlab_unregister {
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
 
-TEMPLATE_FILE='./template-config.toml'
+TEMPLATE_FILE_GENERAL='./template-general-config.toml'
+TEMPLATE_FILE_IT='./template-it-config.toml'
 # Create config.toml template file
 # https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnersmachine-section
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
-cat <<EOF >$TEMPLATE_FILE
+cat <<EOF >$TEMPLATE_FILE_GENERAL
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
 
@@ -30,7 +31,6 @@ check_interval = 0
     "DOCKER_DRIVER=overlay2",
     "DOCKER_TLS_CERTDIR="
   ]
-  runUntagged = true
   [runners.docker]
     privileged = true
     disable_cache = true
@@ -62,6 +62,11 @@ check_interval = 0
       SecretKey = "${CACHE_S3_SECRET_KEY}"
       BucketName = "${CACHE_S3_BUCKET_NAME}"
       BucketLocation = "${CACHE_S3_BUCKET_LOCATION}"
+EOF
+
+cat <<EOF >$TEMPLATE_FILE_GENERAL
+concurrent = ${RUNNER_CONCURRENT_LIMIT}
+check_interval = 0
 
 [[runners]]
   name = "echope-erp-gitlab-runner-integration-tests"
@@ -73,7 +78,6 @@ check_interval = 0
     "DOCKER_DRIVER=overlay2",
     "DOCKER_TLS_CERTDIR="
   ]
-  tags = "tests-integration"
   [runners.docker]
     privileged = true
     disable_cache = true
@@ -108,18 +112,36 @@ check_interval = 0
 
 EOF
 
-echo "Registering runner using config.toml template file: $TEMPLATE_FILE"
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 # https://docs.gitlab.com/runner/commands/
 # --debug
 gitlab-runner --debug register \
---template-config $TEMPLATE_FILE \
---non-interactive
+--template-config $TEMPLATE_FILE_GENERAL \
+--non-interactive \
+--name "ci-runner-general" \
+--description "Gitlab Runner executing Pipeline Jobs in EC2" \
+--limit ${RUNNER_CONCURRENT_LIMIT} \
+--request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
+--run-untagged
+
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_IT"
+gitlab-runner --debug register \
+--template-config $TEMPLATE_FILE_IT \
+--non-interactive \
+--name "ci-runner-it" \
+--description "Gitlab Runner executing Pipeline Jobs in EC2 with Integration Tests configuration" \
+--limit ${RUNNER_CONCURRENT_LIMIT} \
+--request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
+--tag-list "tests-integration"
 
 echo "gitlab-runner version..."
 gitlab-runner --version
 
 echo "List available runners..."
 gitlab-runner list
+
+echo "Current config.toml..."
+cat /etc/gitlab-runner/config.toml 2> /dev/null
 
 echo "Starting runner..."
 gitlab-runner run
