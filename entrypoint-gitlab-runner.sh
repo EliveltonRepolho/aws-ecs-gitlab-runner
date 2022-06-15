@@ -14,12 +14,14 @@ set -euo pipefail
 function gitlab_unregister {
     echo "Tearing down runners..."
 
-    echo "Stopping runners..."
+    echo "Stopping runners... - killall"
+    
     # Grafeful Shutdown (wait jobs to finish)
     #pkill -QUIT gitlab-runner
 
     # Forceful Shutdown (abort current jobs)
-    pkill -SIGTERM gitlab-runner
+    killall gitlab-runner
+    #pkill -SIGTERM gitlab-runner
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
@@ -41,6 +43,7 @@ cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
 cat <<EOF >$GLOBAL_SECTION_CONFIG
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
+log_level = "debug"
 
 [session_server]
   session_timeout = 1800
