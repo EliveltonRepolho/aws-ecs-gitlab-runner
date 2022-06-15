@@ -5,6 +5,7 @@
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
 # https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
 # https://docs.gitlab.com/runner/commands/
+# https://docs.gitlab.com/runner/register/index.html#runners-configuration-template-file
 
 # Set error handling
 set -euo pipefail
@@ -14,7 +15,9 @@ function gitlab_unregister {
     echo "Tearing down runners..."
 
     echo "Stopping runners..."
-    gitlab-runner --debug stop
+    #gitlab-runner --debug stop
+    killall QUIT gitlab-runner
+    #pkill -QUIT gitlab-runner
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
@@ -22,6 +25,10 @@ function gitlab_unregister {
 }
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
+
+
+echo "installing deps"
+apt update && apt-get install -y psmisc
 
 GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 
