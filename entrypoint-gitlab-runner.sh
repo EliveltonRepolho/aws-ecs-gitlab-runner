@@ -12,17 +12,17 @@ set -euo pipefail
 
 # Always unregister runner on exit
 function gitlab_unregister {
-    echo "Tearing down runners... x"
-    echo "Stopping runners..."
+    echo "Tearing down runners..."
     
+    echo "Stopping runners..."
     # Grafeful Shutdown (wait jobs to finish)
     #pkill -QUIT gitlab-runner
 
     # Forceful Shutdown (abort current jobs)
     pkill -SIGTERM gitlab-runner
 
-    #echo "Unregistering runners..."
-    #gitlab-runner --debug unregister --all-runners
+    echo "Unregistering runners..."
+    gitlab-runner --debug unregister --all-runners
 }
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
@@ -36,7 +36,7 @@ cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
 cat <<EOF >$GLOBAL_SECTION_CONFIG
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
-log_level = "debug"
+#log_level = "debug"
 
 [session_server]
   session_timeout = 1800
@@ -161,8 +161,4 @@ pid=$!
 echo "waiting for runner pid: ${pid}"
 wait $pid
 
-echo "killing runner pid: ${pid}"
-kill $pid
-
-echo "existing script"
-exit
+echo "leaving script"
