@@ -14,7 +14,8 @@ set -euo pipefail
 function gitlab_unregister {
     echo "Tearing down runners..."
 
-    echo "Stopping runners... - killall"
+    ps -ef
+    echo "Stopping runners..."
     
     # Grafeful Shutdown (wait jobs to finish)
     #pkill -QUIT gitlab-runner
@@ -25,6 +26,8 @@ function gitlab_unregister {
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
+
+    ps -ef
     
 }
 
