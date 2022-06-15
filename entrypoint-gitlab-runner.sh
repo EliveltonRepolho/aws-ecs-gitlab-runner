@@ -12,30 +12,20 @@ set -euo pipefail
 
 # Always unregister runner on exit
 function gitlab_unregister {
-    echo "Tearing down runners..."
-
-    ps -ef
+    echo "Tearing down runners... x"
     echo "Stopping runners..."
     
     # Grafeful Shutdown (wait jobs to finish)
     #pkill -QUIT gitlab-runner
 
     # Forceful Shutdown (abort current jobs)
-    killall gitlab-runner
-    #pkill -SIGTERM gitlab-runner
+    pkill -SIGTERM gitlab-runner
 
-    echo "Unregistering runners..."
-    gitlab-runner --debug unregister --all-runners
-
-    ps -ef
-    
+    #echo "Unregistering runners..."
+    #gitlab-runner --debug unregister --all-runners
 }
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
-
-
-echo "installing deps"
-apt update && apt-get install -y psmisc
 
 GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 
