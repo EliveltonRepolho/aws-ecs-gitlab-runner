@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Create config.toml template file
+# https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnersmachine-section
+# https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
+# https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
+# https://docs.gitlab.com/runner/commands/
+
 # Set error handling
 set -euo pipefail
 
@@ -11,15 +17,22 @@ function gitlab_unregister {
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
 
-TEMPLATE_FILE_GENERAL='./template-general-config.toml'
-# Create config.toml template file
-# https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runnersmachine-section
-# https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/blob/main/docs/drivers/aws.md
-# https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/tree/main/drivers/amazonec2
-cat <<EOF >$TEMPLATE_FILE_GENERAL
+GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
+
+echo "Default config.toml..."
+cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
+
+# Override default config.toml
+cat <<EOF >$GLOBAL_SECTION_CONFIG
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
 
+[session_server]
+  session_timeout = 1800
+EOF
+
+TEMPLATE_FILE_GENERAL='./template-general-config.toml'
+cat <<EOF >$TEMPLATE_FILE_GENERAL
 [[runners]]
   name = "echope-erp-gitlab-runner-general"
   description = "Gitlab Runner executing Pipeline Jobs in EC2" 
@@ -65,9 +78,6 @@ EOF
 
 TEMPLATE_FILE_IT='./template-it-config.toml'
 cat <<EOF >$TEMPLATE_FILE_IT
-concurrent = ${RUNNER_CONCURRENT_LIMIT}
-check_interval = 0
-
 [[runners]]
   name = "echope-erp-gitlab-runner-integration-tests"
   description = "Gitlab Runner executing Pipeline Jobs in EC2 with Integration Tests configuration" 
@@ -109,11 +119,10 @@ check_interval = 0
       SecretKey = "${CACHE_S3_SECRET_KEY}"
       BucketName = "${CACHE_S3_BUCKET_NAME}"
       BucketLocation = "${CACHE_S3_BUCKET_LOCATION}"
-
 EOF
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
-# https://docs.gitlab.com/runner/commands/
+
 # --debug
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
@@ -137,7 +146,7 @@ echo "List available runners..."
 gitlab-runner list
 
 echo "Current config.toml..."
-cat /etc/gitlab-runner/config.toml 2> /dev/null
+cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
 
 echo "Starting runner..."
 gitlab-runner run
