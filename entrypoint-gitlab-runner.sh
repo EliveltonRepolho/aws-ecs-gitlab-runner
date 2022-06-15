@@ -51,7 +51,7 @@ cat <<EOF >$TEMPLATE_FILE_GENERAL
     IdleTime = 60
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
-    MachineName = "gitlab-docker-machine-general-%s"
+    MachineName = "gitlab-general-%s"
     MachineOptions = [
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
@@ -96,7 +96,7 @@ cat <<EOF >$TEMPLATE_FILE_IT
     IdleTime = 60
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
-    MachineName = "gitlab-docker-machine-it-%s"
+    MachineName = "gitlab-it-%s"
     MachineOptions = [
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
