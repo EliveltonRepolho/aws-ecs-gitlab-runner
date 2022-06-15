@@ -14,7 +14,7 @@ function gitlab_unregister {
     echo "Tearing down runners..."
 
     echo "Stopping runners..."
-    gitlab-runner stop -
+    gitlab-runner --debug stop -
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
