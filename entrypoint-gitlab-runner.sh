@@ -16,8 +16,8 @@ function gitlab_unregister {
 
     echo "Stopping runners..."
     #gitlab-runner --debug stop
-    killall QUIT gitlab-runner
-    #pkill -QUIT gitlab-runner
+    #killall QUIT gitlab-runner
+    pkill -QUIT gitlab-runner
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
