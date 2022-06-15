@@ -145,8 +145,5 @@ gitlab-runner --version
 echo "List available runners..."
 gitlab-runner list
 
-echo "Current config.toml..."
-cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
-
 echo "Starting runner..."
 gitlab-runner run
