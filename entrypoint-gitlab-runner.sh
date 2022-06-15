@@ -19,7 +19,7 @@ function gitlab_unregister {
     #pkill -QUIT gitlab-runner
 
     # Forceful Shutdown (abort current jobs)
-    pkill -SIGTERM gitlab-runner
+    pkill -TERM gitlab-runner
 
     echo "Unregistering runners..."
     gitlab-runner --debug unregister --all-runners
