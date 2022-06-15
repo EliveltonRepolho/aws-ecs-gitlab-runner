@@ -142,4 +142,16 @@ echo "List available runners..."
 gitlab-runner list
 
 echo "Starting runner..."
-gitlab-runner run
+
+# background the task
+gitlab-runner run &
+pid=$!
+
+echo "waiting for runner pid: ${pid}"
+wait $pid
+
+echo "killing runner pid: ${pid}"
+kill $pid
+
+echo "existing script"
+exit
