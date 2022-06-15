@@ -118,8 +118,6 @@ echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
---name "ci-runner-general" \
---description "Gitlab Runner executing Pipeline Jobs in EC2" \
 --limit ${RUNNER_CONCURRENT_LIMIT} \
 --request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
 --run-untagged
@@ -128,8 +126,6 @@ echo "Registering runner using config.toml template file: $TEMPLATE_FILE_IT"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_IT \
 --non-interactive \
---name "ci-runner-it" \
---description "Gitlab Runner executing Pipeline Jobs in EC2 with Integration Tests configuration" \
 --limit ${RUNNER_CONCURRENT_LIMIT} \
 --request-concurrency ${RUNNER_CONCURRENT_LIMIT} \
 --tag-list "tests-integration"
