@@ -11,8 +11,14 @@ set -euo pipefail
 
 # Always unregister runner on exit
 function gitlab_unregister {
-    echo "Unregistering runner..."
-    gitlab-runner unregister --all-runners
+    echo "Tearing down runners..."
+
+    echo "Stopping runners..."
+    gitlab-runner stop -
+
+    echo "Unregistering runners..."
+    gitlab-runner --debug unregister --all-runners
+    
 }
 
 trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
