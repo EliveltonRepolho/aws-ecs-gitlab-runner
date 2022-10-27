@@ -32,8 +32,7 @@ GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 echo "Default config.toml..."
 cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
 
-# Global config file
-
+# Override default config.toml
 cat <<EOF >$GLOBAL_SECTION_CONFIG
 concurrent = ${RUNNER_CONCURRENT_LIMIT}
 check_interval = 0
@@ -43,16 +42,10 @@ check_interval = 0
   session_timeout = 1800
 EOF
 
-
-# Per runner config file
-function create_runner_config_file {
-  local runner_type=$1
-  local config_file=$2
-  local instance_type=$3
-
-cat <<EOF >$config_file
+TEMPLATE_FILE_GENERAL='./template-general-config.toml'
+cat <<EOF >$TEMPLATE_FILE_GENERAL
 [[runners]]
-  name = "echope-erp-gitlab-runner-${runner_type}"
+  name = "echope-erp-gitlab-runner-general"
   description = "Gitlab Runner executing Pipeline Jobs in EC2" 
   executor = "docker+machine"
   limit = ${RUNNER_CONCURRENT_LIMIT}
@@ -69,7 +62,7 @@ cat <<EOF >$config_file
     IdleTime = 60
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
-    MachineName = "gitlab-${runner_type}-%s"
+    MachineName = "gitlab-general-%s"
     MachineOptions = [
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
@@ -80,8 +73,8 @@ cat <<EOF >$config_file
       "amazonec2-use-private-address=true",
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
-      "amazonec2-instance-type=${instance_type}",
-      "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-${runner_type}",
+      "amazonec2-instance-type=${AWS_INSTANCE_TYPE_GENERAL}",
+      "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner",
     ]
   [runners.cache]
     Type = "${CACHE_TYPE}"
@@ -93,18 +86,51 @@ cat <<EOF >$config_file
       BucketName = "${CACHE_S3_BUCKET_NAME}"
       BucketLocation = "${CACHE_S3_BUCKET_LOCATION}"
 EOF
-}
 
-TEMPLATE_FILE_GENERAL='./template-general-config.toml'
-create_runner_config_file "general" ${TEMPLATE_FILE_GENERAL} ${AWS_INSTANCE_TYPE_GENERAL}
-
-TEMPLATE_FILE_MEDIUM='./template-medium-config.toml'
-create_runner_config_file "medium" ${TEMPLATE_FILE_MEDIUM} ${AWS_INSTANCE_TYPE_MEDIUM}
-
-TEMPLATE_FILE_LARGE='./template-medium-config.toml'
-create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LARGE}
-
-# Register runners
+TEMPLATE_FILE_IT='./template-it-config.toml'
+cat <<EOF >$TEMPLATE_FILE_IT
+[[runners]]
+  name = "echope-erp-gitlab-runner-integration-tests"
+  description = "Gitlab Runner executing Pipeline Jobs in EC2 with Integration Tests configuration" 
+  executor = "docker+machine"
+  limit = ${RUNNER_CONCURRENT_LIMIT}
+  request_concurrency = ${RUNNER_CONCURRENT_LIMIT}
+  environment = [
+    "DOCKER_DRIVER=overlay2",
+    "DOCKER_TLS_CERTDIR="
+  ]
+  [runners.docker]
+    privileged = true
+    disable_cache = true
+    tls_verify = true
+  [runners.machine]
+    IdleTime = 60
+    MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
+    MachineDriver = "amazonec2"
+    MachineName = "gitlab-it-%s"
+    MachineOptions = [
+      "amazonec2-ami=${AWS_AMI}",
+      "amazonec2-root-size=${AWS_ROOT_SIZE}",
+      "amazonec2-region=${AWS_DEFAULT_REGION}",
+      "amazonec2-vpc-id=${AWS_VPC_ID}",
+      "amazonec2-subnet-id=${AWS_SUBNET_ID}",
+      "amazonec2-zone=${AWS_SUBNET_ZONE}",
+      "amazonec2-use-private-address=true",
+      "amazonec2-ssh-user=${AWS_SSH_USER}",
+      "amazonec2-security-group=${AWS_SECURITY_GROUP}",
+      "amazonec2-instance-type=${AWS_INSTANCE_TYPE_IT}",
+      "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-it",
+    ]
+  [runners.cache]
+    Type = "${CACHE_TYPE}"
+    Shared = ${CACHE_SHARED}
+    [runners.cache.s3]
+      ServerAddress = "${CACHE_S3_SERVER_ADDRESS}"
+      AccessKey = "${CACHE_S3_ACCESS_KEY}"
+      SecretKey = "${CACHE_S3_SECRET_KEY}"
+      BucketName = "${CACHE_S3_BUCKET_NAME}"
+      BucketLocation = "${CACHE_S3_BUCKET_LOCATION}"
+EOF
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 
@@ -114,17 +140,11 @@ gitlab-runner --debug register \
 --non-interactive \
 --run-untagged
 
-echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM"
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_IT"
 gitlab-runner --debug register \
---template-config $TEMPLATE_FILE_MEDIUM \
+--template-config $TEMPLATE_FILE_IT \
 --non-interactive \
---tag-list "aws:medium"
-
-echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE"
-gitlab-runner --debug register \
---template-config $TEMPLATE_FILE_LARGE \
---non-interactive \
---tag-list "aws:large"
+--tag-list "test:integration:browser"
 
 echo "gitlab-runner version..."
 gitlab-runner --version
