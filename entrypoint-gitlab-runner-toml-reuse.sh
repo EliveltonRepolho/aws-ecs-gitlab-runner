@@ -100,6 +100,9 @@ EOF
 TEMPLATE_FILE_GENERAL='./template-general-config.toml'
 create_runner_config_file "general" ${TEMPLATE_FILE_GENERAL} ${AWS_INSTANCE_TYPE_GENERAL} "false"
 
+TEMPLATE_FILE_GENERAL_SPOT='./template-general-spot-config.toml'
+create_runner_config_file "general" ${TEMPLATE_FILE_GENERAL_SPOT} ${AWS_INSTANCE_TYPE_GENERAL} "true"
+
 TEMPLATE_FILE_MEDIUM='./template-medium-config.toml'
 create_runner_config_file "medium" ${TEMPLATE_FILE_MEDIUM} ${AWS_INSTANCE_TYPE_MEDIUM} "false"
 
@@ -113,15 +116,20 @@ TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
 create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
 
 # Register runners
+# --debug
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
-
-# --debug
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
 --run-untagged
 --tag-list "aws:small,aws:general"
+
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL_SPOT"
+gitlab-runner --debug register \
+--template-config $TEMPLATE_FILE_GENERAL_SPOT \
+--non-interactive \
+--tag-list "aws:small:spot,aws:general:spot"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM"
 gitlab-runner --debug register \
