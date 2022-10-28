@@ -49,6 +49,7 @@ function create_runner_config_file {
   local runner_type=$1
   local config_file=$2
   local instance_type=$3
+  local is_spot=${4:-false}
 
 cat <<EOF >$config_file
 [[runners]]
@@ -81,6 +82,7 @@ cat <<EOF >$config_file
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
+      "amazonec2-request-spot-instance=${is_spot}",
       "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-${runner_type}",
     ]
   [runners.cache]
@@ -96,13 +98,19 @@ EOF
 }
 
 TEMPLATE_FILE_GENERAL='./template-general-config.toml'
-create_runner_config_file "general" ${TEMPLATE_FILE_GENERAL} ${AWS_INSTANCE_TYPE_GENERAL}
+create_runner_config_file "general" ${TEMPLATE_FILE_GENERAL} ${AWS_INSTANCE_TYPE_GENERAL} "false"
 
 TEMPLATE_FILE_MEDIUM='./template-medium-config.toml'
-create_runner_config_file "medium" ${TEMPLATE_FILE_MEDIUM} ${AWS_INSTANCE_TYPE_MEDIUM}
+create_runner_config_file "medium" ${TEMPLATE_FILE_MEDIUM} ${AWS_INSTANCE_TYPE_MEDIUM} "false"
 
-TEMPLATE_FILE_LARGE='./template-medium-config.toml'
-create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LARGE}
+TEMPLATE_FILE_MEDIUM_SPOT='./template-medium-spot-config.toml'
+create_runner_config_file "medium" ${TEMPLATE_FILE_MEDIUM_SPOT} ${AWS_INSTANCE_TYPE_MEDIUM} "true"
+
+TEMPLATE_FILE_LARGE='./template-large-config.toml'
+create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LARGE} "false"
+
+TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
+create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
 
 # Register runners
 
@@ -121,11 +129,23 @@ gitlab-runner --debug register \
 --non-interactive \
 --tag-list "aws:medium"
 
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM_SPOT"
+gitlab-runner --debug register \
+--template-config $TEMPLATE_FILE_MEDIUM_SPOT \
+--non-interactive \
+--tag-list "aws:medium:spot"
+
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_LARGE \
 --non-interactive \
 --tag-list "aws:large"
+
+echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE_SPOT"
+gitlab-runner --debug register \
+--template-config $TEMPLATE_FILE_LARGE_SPOT \
+--non-interactive \
+--tag-list "aws:large:spot"
 
 echo "gitlab-runner version..."
 gitlab-runner --version
