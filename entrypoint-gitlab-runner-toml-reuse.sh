@@ -122,7 +122,7 @@ echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
---run-untagged
+--run-untagged \
 --tag-list "aws:small,aws:general"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL_SPOT"
