@@ -43,6 +43,9 @@ check_interval = 0
   session_timeout = 1800
 EOF
 
+idle_minutes=10
+idle_time=$(( ${idle_minutes} * 60 ))
+echo "using IdleTime: ${idle_time}"
 
 # Per runner config file
 function create_runner_config_file {
@@ -67,7 +70,7 @@ cat <<EOF >$config_file
     disable_cache = true
     tls_verify = true
   [runners.machine]
-    IdleTime = 60
+    IdleTime = ${idle_time}
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
     MachineName = "gitlab-${runner_type}-%s"
