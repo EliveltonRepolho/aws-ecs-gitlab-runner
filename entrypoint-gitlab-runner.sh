@@ -73,7 +73,7 @@ cat <<EOF >$config_file
     IdleTime = ${idle_time}
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
-    MachineName = "gitlab-${runner_type}-%s"
+    MachineName = "gitlab-%s"
     MachineOptions = [
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
