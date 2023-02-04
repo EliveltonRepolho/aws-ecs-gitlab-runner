@@ -123,6 +123,9 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYP
 # Register runners
 # --debug
 
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+sudo mkdir -p /etc/docker
+
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
