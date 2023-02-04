@@ -88,8 +88,6 @@ cat <<EOF >$config_file
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
-      "amazonec2-request-spot-instance=${is_spot}",
-      "amazonec2-userdata=${runners_userdata_file}",
       "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-${runner_type}",
     ]
   [runners.cache]
