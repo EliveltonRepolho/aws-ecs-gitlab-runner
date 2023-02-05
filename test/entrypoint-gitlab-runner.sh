@@ -78,6 +78,7 @@ cat <<EOF >$config_file
     MachineDriver = "amazonec2"
     MachineName = "gitlab-${runner_type}-%s"
     MachineOptions = [
+      "amazonec2-iam-instance-profile=${AWS_INSTANCE_PROFILE}",
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
       "amazonec2-region=${AWS_DEFAULT_REGION}",
