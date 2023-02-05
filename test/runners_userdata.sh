@@ -1,20 +1,23 @@
 #!/bin/bash -ex
 
 #redirec all logs
-sudo touch /var/log/user-data.log && sudo chmod 777 /var/log/user-data.log
+touch /var/log/user-data.log && chmod 777 /var/log/user-data.log
 exec > >(tee /var/log/user-data.log) 2>&1
 
 region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
+apt -qq update
+
+apt install -q -y collectd ec2-instance-connect
 
 wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/amazon-cloudwatch-agent-ec2-config.json
-sudo wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:amazon-cloudwatch-agent-ec2-config.json -s
+wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+dpkg -i -E ./amazon-cloudwatch-agent.deb
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:amazon-cloudwatch-agent-ec2-config.json -s
 
-sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+mkdir -p /etc/docker
+tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "log-driver": "awslogs",
   "log-opts": {
@@ -25,10 +28,6 @@ sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 }
 EOF
 
-sudo service docker ps
-#sudo service docker restart
-
-sudo apt -qq update
-
-sudo apt install -q -y collectd ec2-instance-connect
+service docker ps
+#service docker restart
 
