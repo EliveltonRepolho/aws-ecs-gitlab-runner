@@ -31,6 +31,9 @@ GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 
 runners_userdata_file="/etc/gitlab-runner/runners_userdata.sh"
 wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/runners_userdata.sh -O $runners_userdata_file
+sed -i.bak s/__AWSLOGS_GROUP__/`echo $AWS_CW_LOG_GROUP`/g $runners_userdata_file
+echo "using UserData:"
+cat $runners_userdata_file
 
 echo "Default config.toml..."
 cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
