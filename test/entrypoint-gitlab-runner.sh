@@ -88,6 +88,9 @@ cat <<EOF >$config_file
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
+      "amazonec2-request-spot-instance=${is_spot}",
+      "amazonec2-monitoring=${AWS_EC2_MONITORING}",
+      "amazonec2-userdata=${runners_userdata_file}",
       "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-${runner_type}",
     ]
   [runners.cache]
@@ -123,9 +126,8 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYP
 # Register runners
 # --debug
 
-# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-mkdir -p /etc/docker
 
+# using runner token: https://github.com/npalm/terraform-aws-gitlab-runner/blob/main/template/gitlab-runner.tpl#L26
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \
@@ -165,6 +167,14 @@ gitlab-runner --debug register \
 
 echo "gitlab-runner version..."
 gitlab-runner --version
+
+echo "docker-machine version [Before Update]..."
+docker-machine --version
+
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+wget https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+echo "docker-machine version [After Update]..."
+docker-machine --version
 
 echo "List available runners..."
 gitlab-runner list
