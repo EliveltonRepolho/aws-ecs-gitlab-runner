@@ -8,7 +8,22 @@ region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 awslogs_group="__AWSLOGS_GROUP__"
 
-apt -qq update
+mkdir -p /etc/docker
+tee /etc/docker/daemon.json <<EOF
+{
+  "log-driver": "awslogs",
+  "log-opts": {
+    "awslogs-region": "${region}",
+    "awslogs-group": "${awslogs_group}",
+    "awslogs-stream": "gitlab-runner-ec2-instance-${instance_id}-docker"
+  }
+}
+EOF
+
+for i in {1..7}; do
+  echo "Attempt: ---- " $i
+  apt -qq update && break || sleep 60
+done
 
 apt install -q -y collectd ec2-instance-connect
 
@@ -22,18 +37,6 @@ wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/
 dpkg -i -E ./amazon-cloudwatch-agent.deb
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:amazon-cloudwatch-agent-ec2-config.json -s
 
-mkdir -p /etc/docker
-tee /etc/docker/daemon.json <<EOF
-{
-  "log-driver": "awslogs",
-  "log-opts": {
-    "awslogs-region": "${region}",
-    "awslogs-group": "${awslogs_group}",
-    "awslogs-stream": "gitlab-runner-ec2-instance-${instance_id}-docker"
-  }
-}
-EOF
-
-service docker ps
+docker ps
 #service docker restart
 
