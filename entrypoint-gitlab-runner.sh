@@ -121,6 +121,13 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYP
 # Register runners
 # --debug
 
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+echo "docker-machine version [Before Update]..."
+docker-machine --version
+wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+echo "docker-machine version [After Update]..."
+docker-machine --version
+
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 gitlab-runner --debug register \
 --template-config $TEMPLATE_FILE_GENERAL \

@@ -167,11 +167,10 @@ gitlab-runner --debug register \
 echo "gitlab-runner version..."
 gitlab-runner --version
 
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
 echo "docker-machine version [Before Update]..."
 docker-machine --version
-
-# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-wget https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
 echo "docker-machine version [After Update]..."
 docker-machine --version
 
