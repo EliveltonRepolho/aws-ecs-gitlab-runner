@@ -1,7 +1,7 @@
 #!/bin/bash -ex
-sudo touch /var/log/user-data.log && sudo chmod 777 /var/log/user-data.log
 
 #redirec all logs
+sudo touch /var/log/user-data.log && sudo chmod 777 /var/log/user-data.log
 exec > >(tee /var/log/user-data.log) 2>&1
 
 region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)

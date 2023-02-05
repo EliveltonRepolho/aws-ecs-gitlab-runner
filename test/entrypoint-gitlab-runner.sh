@@ -78,6 +78,8 @@ cat <<EOF >$config_file
     MachineDriver = "amazonec2"
     MachineName = "gitlab-${runner_type}-%s"
     MachineOptions = [
+      "amazonec2-access-key=${AWS_INSTANCE_ACCESS_KEY}",
+      "amazonec2-secret-key=${AWS_INSTANCE_SECRET_KEY}",
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
       "amazonec2-region=${AWS_DEFAULT_REGION}",
@@ -125,7 +127,6 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYP
 
 # Register runners
 # --debug
-
 
 # using runner token: https://github.com/npalm/terraform-aws-gitlab-runner/blob/main/template/gitlab-runner.tpl#L26
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
