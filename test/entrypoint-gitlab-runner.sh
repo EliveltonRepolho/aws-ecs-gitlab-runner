@@ -85,6 +85,7 @@ cat <<EOF >$config_file
       "amazonec2-vpc-id=${AWS_VPC_ID}",
       "amazonec2-subnet-id=${AWS_SUBNET_ID}",
       "amazonec2-zone=${AWS_SUBNET_ZONE}",
+      "amazonec2-use-private-address=true",
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
@@ -122,6 +123,14 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LAR
 
 TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
 create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
+
+
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+echo "docker-machine version [Before Update]..."
+docker-machine --version
+wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+echo "docker-machine version [After Update]..."
+docker-machine --version
 
 # Register runners
 # --debug
@@ -166,13 +175,6 @@ gitlab-runner --debug register \
 
 echo "gitlab-runner version..."
 gitlab-runner --version
-
-# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-echo "docker-machine version [Before Update]..."
-docker-machine --version
-wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
-echo "docker-machine version [After Update]..."
-docker-machine --version
 
 echo "List available runners..."
 gitlab-runner list
