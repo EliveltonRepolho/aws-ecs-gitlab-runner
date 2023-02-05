@@ -78,8 +78,6 @@ cat <<EOF >$config_file
     MachineDriver = "amazonec2"
     MachineName = "gitlab-${runner_type}-%s"
     MachineOptions = [
-      "amazonec2-access-key=${AWS_INSTANCE_ACCESS_KEY}",
-      "amazonec2-secret-key=${AWS_INSTANCE_SECRET_KEY}",
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
       "amazonec2-region=${AWS_DEFAULT_REGION}",
