@@ -81,6 +81,7 @@ cat <<EOF >$config_file
       "amazonec2-vpc-id=${AWS_VPC_ID}",
       "amazonec2-subnet-id=${AWS_SUBNET_ID}",
       "amazonec2-zone=${AWS_SUBNET_ZONE}",
+      "amazonec2-use-private-address=true",
       "amazonec2-ssh-user=${AWS_SSH_USER}",
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
