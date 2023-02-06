@@ -28,7 +28,7 @@ done
 apt install -q -y collectd ec2-instance-connect
 
 wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/amazon-cloudwatch-agent-ec2-config.json
-sed -i.bak s/__AWSLOGS_GROUP__/`echo $awslogs_group`/g amazon-cloudwatch-agent-ec2-config.json
+sed -i.bak s/__LOG_GROUP_NAME__/`echo $awslogs_group`/g amazon-cloudwatch-agent-ec2-config.json
 echo "using amazon-cloudwatch-agent-ec2-config.json"
 cat amazon-cloudwatch-agent-ec2-config.json
 
@@ -36,7 +36,3 @@ cat amazon-cloudwatch-agent-ec2-config.json
 wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 dpkg -i -E ./amazon-cloudwatch-agent.deb
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:amazon-cloudwatch-agent-ec2-config.json -s
-
-docker ps
-#service docker restart
-
