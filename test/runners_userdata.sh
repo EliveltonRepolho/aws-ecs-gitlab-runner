@@ -8,6 +8,7 @@ region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 awslogs_group="__AWSLOGS_GROUP__"
 
+# it is not working because we need to restar docker services (not doing this because the gitlab job is already started)
 mkdir -p /etc/docker
 tee /etc/docker/daemon.json <<EOF
 {
@@ -29,9 +30,6 @@ apt install -q -y collectd ec2-instance-connect
 
 wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/amazon-cloudwatch-agent-ec2-config.json
 sed -i.bak s/__LOG_GROUP_NAME__/`echo $awslogs_group`/g amazon-cloudwatch-agent-ec2-config.json
-echo "using amazon-cloudwatch-agent-ec2-config.json"
-cat amazon-cloudwatch-agent-ec2-config.json
-
 
 wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 dpkg -i -E ./amazon-cloudwatch-agent.deb
