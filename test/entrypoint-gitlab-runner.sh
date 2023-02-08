@@ -36,8 +36,8 @@ wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner
 sed -i.bak s/__AWSLOGS_GROUP__/`echo $AWS_CW_LOG_GROUP`/g $runners_userdata_file
 
 # https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-# echo "docker-machine version [Before Update]..."
-# docker-machine --version
+echo "docker-machine version..."
+docker-machine --version
 # wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
 # echo "docker-machine version [After Update]..."
 # docker-machine --version
