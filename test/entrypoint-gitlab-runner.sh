@@ -32,9 +32,15 @@ GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 runners_userdata_file="/etc/gitlab-runner/runners_userdata.sh"
 touch $runners_userdata_file
 
-# enable if want to troubleshoot the logs from gitlab runner ec2 and not able to connect to the machine
-# wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/runners_userdata.sh -O $runners_userdata_file
-# sed -i.bak s/__AWSLOGS_GROUP__/`echo $AWS_CW_LOG_GROUP`/g $runners_userdata_file
+wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/test/runners_userdata.sh -O $runners_userdata_file
+sed -i.bak s/__AWSLOGS_GROUP__/`echo $AWS_CW_LOG_GROUP`/g $runners_userdata_file
+
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+# echo "docker-machine version [Before Update]..."
+# docker-machine --version
+# wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+# echo "docker-machine version [After Update]..."
+# docker-machine --version
 
 echo "Default config.toml..."
 cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
@@ -128,13 +134,6 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LAR
 TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
 create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
 
-
-# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-echo "docker-machine version [Before Update]..."
-docker-machine --version
-wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
-echo "docker-machine version [After Update]..."
-docker-machine --version
 
 # Register runners
 # --debug
