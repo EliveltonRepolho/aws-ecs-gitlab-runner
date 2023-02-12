@@ -29,6 +29,19 @@ trap gitlab_unregister EXIT SIGHUP SIGINT SIGTERM
 
 GLOBAL_SECTION_CONFIG='/etc/gitlab-runner/config.toml'
 
+runners_userdata_file="/etc/gitlab-runner/runners_userdata.sh"
+touch $runners_userdata_file
+
+wget -q https://raw.githubusercontent.com/EliveltonRepolho/aws-ecs-gitlab-runner/main/runners_userdata.sh -O $runners_userdata_file
+sed -i.bak s/__AWSLOGS_GROUP__/`echo $AWS_CW_LOG_GROUP`/g $runners_userdata_file
+
+# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
+echo "docker-machine version..."
+docker-machine --version
+# wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
+# echo "docker-machine version [After Update]..."
+# docker-machine --version
+
 echo "Default config.toml..."
 cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
 
@@ -73,8 +86,9 @@ cat <<EOF >$config_file
     IdleTime = ${idle_time}
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
     MachineDriver = "amazonec2"
-    MachineName = "gitlab-%s"
+    MachineName = "gitlab-${runner_type}-%s"
     MachineOptions = [
+      "amazonec2-iam-instance-profile=${AWS_INSTANCE_PROFILE}",
       "amazonec2-ami=${AWS_AMI}",
       "amazonec2-root-size=${AWS_ROOT_SIZE}",
       "amazonec2-region=${AWS_DEFAULT_REGION}",
@@ -86,6 +100,8 @@ cat <<EOF >$config_file
       "amazonec2-security-group=${AWS_SECURITY_GROUP}",
       "amazonec2-instance-type=${instance_type}",
       "amazonec2-request-spot-instance=${is_spot}",
+      "amazonec2-monitoring=${AWS_INSTANCE_MONITORING}",
+      "amazonec2-userdata=${runners_userdata_file}",
       "amazonec2-tags=stack,echope-erp,stack-env,echope-erp-infra-devops,stack-group,echope-erp-gitlab-ec2-runner-${runner_type}",
     ]
   [runners.cache]
@@ -118,49 +134,44 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LAR
 TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
 create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
 
+
 # Register runners
 # --debug
 
-# https://gitlab.com/gitlab-org/gitlab/-/issues/390385
-echo "docker-machine version [Before Update]..."
-docker-machine --version
-wget -q https://gitlab.com/gitlab-org/ci-cd/docker-machine/-/releases/v0.16.2-gitlab.19/downloads/docker-machine-Linux-x86_64 -O /usr/bin/docker-machine
-echo "docker-machine version [After Update]..."
-docker-machine --version
-
+# using runner token: https://github.com/npalm/terraform-aws-gitlab-runner/blob/main/template/gitlab-runner.tpl#L26
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
 --run-untagged \
 --tag-list "aws:small,aws:general"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL_SPOT"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_GENERAL_SPOT \
 --non-interactive \
 --tag-list "aws:small:spot,aws:general:spot"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_MEDIUM \
 --non-interactive \
 --tag-list "aws:medium"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM_SPOT"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_MEDIUM_SPOT \
 --non-interactive \
 --tag-list "aws:medium:spot"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_LARGE \
 --non-interactive \
 --tag-list "aws:large"
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE_SPOT"
-gitlab-runner --debug register \
+gitlab-runner register \
 --template-config $TEMPLATE_FILE_LARGE_SPOT \
 --non-interactive \
 --tag-list "aws:large:spot"
