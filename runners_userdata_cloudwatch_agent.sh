@@ -34,3 +34,12 @@ sed -i.bak s/__LOG_GROUP_NAME__/`echo $awslogs_group`/g amazon-cloudwatch-agent-
 wget https://s3.${region}.amazonaws.com/amazoncloudwatch-agent-${region}/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 dpkg -i -E ./amazon-cloudwatch-agent.deb
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:amazon-cloudwatch-agent-ec2-config.json -s
+
+
+echo "Create swap partition"
+# https://repost.aws/knowledge-center/ec2-memory-swap-file
+dd if=/dev/zero of=/swapfile bs=128M count=32
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+swapon -s
