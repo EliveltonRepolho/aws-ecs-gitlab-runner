@@ -22,7 +22,10 @@ if [ ! -f /swapfile ]; then
 
     echo "vm.swappiness = 4" >> /etc/sysctl.conf
     sysctl -p
+    echo "swap partition created"
 fi
 EOF
 chmod +x create_swap_partition.sh
 nohup sh create_swap_partition.sh &
+
+echo "User Data script done"
