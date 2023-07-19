@@ -11,9 +11,9 @@ exec > >(tee /var/log/user-data.log) 2>&1
 mkdir -p /etc/docker
 
 
-if [ ! -f /swapfile ]; then
-    echo "Create swap partition"
-    # https://repost.aws/knowledge-center/ec2-memory-swap-file
+# https://repost.aws/knowledge-center/ec2-memory-swap-file
+tee create_swap_partition.sh <<EOF
+if [ ! -f /swapfile ]; then    
     dd if=/dev/zero of=/swapfile bs=128M count=32
     chmod 600 /swapfile
     mkswap /swapfile
@@ -23,4 +23,6 @@ if [ ! -f /swapfile ]; then
     echo "vm.swappiness = 4" >> /etc/sysctl.conf
     sysctl -p
 fi
-
+EOF
+chmod +x create_swap_partition.sh
+nohup sh create_swap_partition.sh &
