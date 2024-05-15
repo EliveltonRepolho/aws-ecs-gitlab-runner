@@ -81,6 +81,7 @@ cat <<EOF >$config_file
     "DOCKER_DRIVER=overlay2",
     "DOCKER_TLS_CERTDIR="
   ]
+  [runners.monitoring]
   [runners.docker]
     privileged = true
     disable_cache = true
