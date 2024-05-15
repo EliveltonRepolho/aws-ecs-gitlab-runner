@@ -7,6 +7,9 @@
 # https://docs.gitlab.com/runner/commands/
 # https://docs.gitlab.com/runner/register/index.html#runners-configuration-template-file
 
+# TODO: create custom image
+apt update && apt install -y jq
+
 # Set error handling
 set -euo pipefail
 
@@ -134,47 +137,60 @@ create_runner_config_file "large" ${TEMPLATE_FILE_LARGE} ${AWS_INSTANCE_TYPE_LAR
 TEMPLATE_FILE_LARGE_SPOT='./template-large-spot-config.toml'
 create_runner_config_file "large" ${TEMPLATE_FILE_LARGE_SPOT} ${AWS_INSTANCE_TYPE_LARGE} "true"
 
-
 # Register runners
 # --debug
+
+function register_runner() {
+    description=$1
+    run_untagged=$2
+    tag_list=$3
+
+    result=$(curl --silent --request POST --url "https://gitlab.com/api/v4/user/runners" \
+        --data "runner_type=group_type" \
+        --data "group_id=${GROUP_ID}" \
+        --data "description=${description}" \
+        --data "run_untagged=${run_untagged}" \
+        --data "tag_list=${tag_list}" \
+        --header "PRIVATE-TOKEN: ${ACCESS_TOKEN}")
+    echo $result | jq -r '.token'
+}
 
 # using runner token: https://github.com/npalm/terraform-aws-gitlab-runner/blob/main/template/gitlab-runner.tpl#L26
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_GENERAL \
 --non-interactive \
---run-untagged \
---tag-list "aws:small,aws:general"
+--token $(register_runner "general" "true" "aws:small,aws:general")
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_GENERAL_SPOT"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_GENERAL_SPOT \
 --non-interactive \
---tag-list "aws:small:spot,aws:general:spot"
+--token $(register_runner "general-spot" "false" "aws:small:spot,aws:general:spot")
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_MEDIUM \
 --non-interactive \
---tag-list "aws:medium"
+--token $(register_runner "medium" "false" "aws:medium")
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_MEDIUM_SPOT"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_MEDIUM_SPOT \
 --non-interactive \
---tag-list "aws:medium:spot"
+--token $(register_runner "medium-spot" "false" "aws:medium:spot")
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_LARGE \
 --non-interactive \
---tag-list "aws:large"
+--token $(register_runner "large" "false" "aws:large")
 
 echo "Registering runner using config.toml template file: $TEMPLATE_FILE_LARGE_SPOT"
 gitlab-runner register \
 --template-config $TEMPLATE_FILE_LARGE_SPOT \
 --non-interactive \
---tag-list "aws:large:spot"
+--token $(register_runner "large-spot" "false" "aws:large:spot")
 
 echo "gitlab-runner version..."
 gitlab-runner --version
