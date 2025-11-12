@@ -77,14 +77,15 @@ cat <<EOF >$config_file
   limit = ${RUNNER_CONCURRENT_LIMIT}
   request_concurrency = ${RUNNER_CONCURRENT_LIMIT}
   environment = [
-    "DOCKER_HOST=unix:///runner/services/docker/docker.sock"
+    "DOCKER_TLS_CERTDIR=/certs"
   ]
   [runners.monitoring]
   [runners.docker]
     privileged = true
-    volumes = ["/runner/services/docker"]
+    disable_cache = false
+    volumes = ["/certs/client", "/cache"]
     shm_size = 0
-    pull_policy = ["if-not-present", "always"]
+    pull_policy = "if-not-present"
   [runners.machine]
     IdleTime = ${idle_time}
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
