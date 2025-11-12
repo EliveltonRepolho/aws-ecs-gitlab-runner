@@ -82,9 +82,11 @@ cat <<EOF >$config_file
   ]
   [runners.monitoring]
   [runners.docker]
+    tls_verify = false
     privileged = true
-    disable_cache = true
-    tls_verify = true
+    disable_cache = false
+    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+    shm_size = 0
   [runners.machine]
     IdleTime = ${idle_time}
     MaxBuilds = 10 # We delete the VM after N jobs has finished so we can try to evict running out of space (disk).
