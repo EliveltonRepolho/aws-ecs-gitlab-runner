@@ -43,7 +43,7 @@ docker-machine --version
 # docker-machine --version
 
 echo "Default config.toml..."
-cat ${GLOBAL_SECTION_CONFIG} 2> /dev/null
+cat "${GLOBAL_SECTION_CONFIG}" 2>/dev/null || true
 
 # Global config file
 
